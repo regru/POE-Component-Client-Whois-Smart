@@ -27,8 +27,8 @@ use_ok( $m );
 
 my $self = bless {
     params => {
-	omit_msg => 2,
-	referral => 0,
+        omit_msg => 2,
+        referral => 0,
     },
     result => [],
 }, $m;
@@ -54,7 +54,7 @@ my $result = {
 };
 
 is_deeply( $self->{result}, [
-	$result
+        $result
     ],
     '->process_query');
 
@@ -66,8 +66,8 @@ $self->process_query(
 );
 
 is_deeply( $self->{result}, [
-	{ %$result },
-	{ %$result, server => 'whois.reg.ru', query_real => 'secret reg.ru' },
+        { %$result },
+        { %$result, server => 'whois.reg.ru', query_real => 'secret reg.ru' },
     ],
     '->process_query x 2');
 

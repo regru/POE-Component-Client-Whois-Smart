@@ -21,7 +21,7 @@ use strict;
 use warnings;
 
 use POE qw(Filter::Stream Wheel::ReadWrite Wheel::SocketFactory
-	   Component::Client::DNS);
+           Component::Client::DNS);
 use Socket;
 use HTTP::Request;
 
@@ -43,8 +43,8 @@ our $named;
 
 sub initialize {
     $named = POE::Component::Client::DNS->spawn(
-	Alias   => 'named',
-	Timeout => 10,
+        Alias   => 'named',
+        Timeout => 10,
     );
 
     1;
@@ -92,21 +92,21 @@ sub get_whois_for_all {
     my ($package, $queries, $heap, $args_ref) = @_;
 
     my %my_params = slice( 
-	$heap->{params}, qw/referral exceed_wait omit_msg use_cnames/
+        $heap->{params}, qw/referral exceed_wait omit_msg use_cnames/
     );
     
     foreach my $q (@$queries) {
-	++$heap->{tasks};
+        ++$heap->{tasks};
 
-	my $result = $heap->{result}{ $q } ||= [];
-	$package->get_whois(
-	    %$args_ref,
-	    retry_another_ip=> $heap->{params}{retry_another_ip},
-	    query	    => $q,
-	    original_query  => $q,
-	    result	    => $result,
-	    params	    => \%my_params,
-	);
+        my $result = $heap->{result}{ $q } ||= [];
+        $package->get_whois(
+            %$args_ref,
+            retry_another_ip=> $heap->{params}{retry_another_ip},
+            query	    => $q,
+            original_query  => $q,
+            result	    => $result,
+            params	    => \%my_params,
+        );
     }
 }
 
@@ -116,8 +116,8 @@ sub get_whois {
     my %args = @_;
 
     if ( $args{query} eq 'pleasetesttimeoutonthisdomainrequest.com' ) {
-	sleep 10;
-	return;
+        sleep 10;
+        return;
     }
 
     unless ( $args{host} ) {
@@ -130,19 +130,19 @@ sub get_whois {
     }
 
     my $self = bless { 
-	result  => delete( $args{result} ),
-	params	=> delete( $args{params} ),
-	request => \%args,
+        result  => delete( $args{result} ),
+        params	=> delete( $args{params} ),
+        request => \%args,
     }, $package;
 
     $self->{session_id} = POE::Session->create(
         object_states => [ 
             $self => [
                 qw/ 
-		    _start _start_resolve _start_query
-		    _sock_input _sock_down
-		    _sock_up _sock_failed _time_out
-		  /
+                    _start _start_resolve _start_query
+                    _sock_input _sock_down
+                    _sock_up _sock_failed _time_out
+                  /
             ],
         ],
         options => { trace => 0 },
@@ -164,15 +164,15 @@ sub _start_resolve {
     my ($kernel, $self) = @_[KERNEL,OBJECT];
 
     my $response = $named->resolve(
-	event	=> "_start_query",
-	host    => $self->{request}->{host},
-	timeout => $self->{request}->{timeout},
-	context => { },
+        event	=> "_start_query",
+        host    => $self->{request}->{host},
+        timeout => $self->{request}->{timeout},
+        context => { },
     );
 
     if ( $response ) {
-	$self->{resolved} = $response;
-	$kernel->yeild('_start_query');
+        $self->{resolved} = $response;
+        $kernel->yeild('_start_query');
     }
 }
 
@@ -184,43 +184,43 @@ sub _start_query {
     my $resolved_host;
 
     if ( $resolved->{response} ) {
-	foreach my $answer ( $resolved->{response}->answer() ) {
-	    if ( $answer->type eq 'A' ) {
-		$resolved_host = $answer->rdatastr;
-		last;
-	    }
-	}
+        foreach my $answer ( $resolved->{response}->answer() ) {
+            if ( $answer->type eq 'A' ) {
+                $resolved_host = $answer->rdatastr;
+                last;
+            }
+        }
     }
 
     unless ( $resolved_host ) {
-	$kernel->yield( '_sock_failed', 
-	    'host resolve of '.$self->{request}{host}.' failed', '', '' );
-	return;
+        $kernel->yield( '_sock_failed', 
+            'host resolve of '.$self->{request}{host}.' failed', '', '' );
+        return;
     }
 
     if ( not exists $self->{request}{local_ip} ) {
-	my $local_ip = next_local_ip(
-	    $self->{request}->{host},
-	    $self->{request}->{clientname},
-	    $self->{request}->{rism},
-	);
-	
-	unless ( $local_ip ) {
-	    my $unban_time = unban_time(
-		$self->{request}->{host},
-		$self->{request}->{clientname},
-		$self->{request}->{rism},                        
-	    );
-	    my $delay_err = $kernel->delay_add('_start', $unban_time);
-	    warn "All IPs banned for server ".$self->{request}->{host}.
-		", waiting: $unban_time sec\n"
-		    if DEBUG;
-	    return;
-	}
+        my $local_ip = next_local_ip(
+            $self->{request}->{host},
+            $self->{request}->{clientname},
+            $self->{request}->{rism},
+        );
+        
+        unless ( $local_ip ) {
+            my $unban_time = unban_time(
+                $self->{request}->{host},
+                $self->{request}->{clientname},
+                $self->{request}->{rism},                        
+            );
+            my $delay_err = $kernel->delay_add('_start', $unban_time);
+            warn "All IPs banned for server ".$self->{request}->{host}.
+                ", waiting: $unban_time sec\n"
+                    if DEBUG;
+            return;
+        }
 
-	#warn $local_ip;
+        #warn $local_ip;
 
-	$self->{request}{local_ip} = $local_ip eq 'default' ? undef : $local_ip;
+        $self->{request}{local_ip} = $local_ip eq 'default' ? undef : $local_ip;
     }
 
     # do it here, because we can yeild to _start from referral/another IP retry
@@ -229,10 +229,10 @@ sub _start_query {
     my $request = $self->{request};
 
     $request->{query_real} = 
-	Net::Whois::Raw::Common::get_real_whois_query(
-		$request->{query},
-		$request->{host}
-	);
+        Net::Whois::Raw::Common::get_real_whois_query(
+                $request->{query},
+                $request->{host}
+        );
 
     $request->{referral_retry} = 0;
 
@@ -284,10 +284,10 @@ sub _sock_up {
     $self->{server} = new POE::Wheel::ReadWrite(
         Handle     => $socket,
         Driver     => POE::Driver::SysRW->new(),
-	Filter	   => POE::Filter::Stream->new(),
+        Filter	   => POE::Filter::Stream->new(),
         InputEvent => '_sock_input',
         ErrorEvent => '_sock_down',
-	AutoFlush  => 1,
+        AutoFlush  => 1,
     );
 
     unless ( $self->{server} ) {
@@ -376,21 +376,21 @@ sub process_query {
     $error = $response->{error};
 
     if ( ! $error ) {
-	$whois = $response->{whois};
+        $whois = $response->{whois};
 
-	($whois, $error) = Net::Whois::Raw::Common::process_whois(
-	    $response->{original_query},
-	    $response->{host},
-	    $whois,
-	    1,
-	    $self->{params}->{omit_msg},
-	    2,
-	);
+        ($whois, $error) = Net::Whois::Raw::Common::process_whois(
+            $response->{original_query},
+            $response->{host},
+            $whois,
+            1,
+            $self->{params}->{omit_msg},
+            2,
+        );
     }
 
     #warn Dumper $error, $response, $self->{result}; #if $error;
     print time, " $self->{session_id}: DONE: '",$response->{query},
-	    "' to ",$response->{host}, "\n" if DEBUG;
+            "' to ",$response->{host}, "\n" if DEBUG;
 
     if ( !$error || ! @{ $self->{result} } ) {
 
@@ -402,72 +402,72 @@ sub process_query {
             error      => $error,
         );
         
-	push @{ $self->{result} }, \%result;
+        push @{ $self->{result} }, \%result;
 
         my ($new_server, $new_query);
 
-	if ( $result{whois} ) {
-	    ($new_server, $new_query) = get_recursion(
-		$result{whois},
-		$result{server},
-		$result{query},
-		@{ $self->{result} },
-	    )
-	}
+        if ( $result{whois} ) {
+            ($new_server, $new_query) = get_recursion(
+                $result{whois},
+                $result{server},
+                $result{query},
+                @{ $self->{result} },
+            )
+        }
 
         if (	$self->{params}->{referral}
-	    &&	$new_server 
-	    &&	$response->{referral_retry}++ < 10 
-	) {
+            &&	$new_server 
+            &&	$response->{referral_retry}++ < 10 
+        ) {
 
-	    $response->{query} = $new_query;
-	    $response->{host}  = $new_server;
+            $response->{query} = $new_query;
+            $response->{host}  = $new_server;
 
-	    delete $response->{error};
-	    delete $response->{whois};
+            delete $response->{error};
+            delete $response->{whois};
 
-	    $poe_kernel->yield('_start');
-	    return;
+            $poe_kernel->yield('_start');
+            return;
         }
     }
 
     # exceed
     if ($error && $error eq 'Connection rate exceeded') {
         my $current_ip = $response->{local_ip} || 'localhost';
-	#$servers_ban{$response->{host}}->{$current_ip} = time;
+        #$servers_ban{$response->{host}}->{$current_ip} = time;
         print "Connection rate exceeded for IP: $current_ip, server: "
             .$response->{host}."\n"
                 if DEBUG;
             
-	# check for next_local_ip here
+        # check for next_local_ip here
         if ( $response->{retry_another_ip}-- >= 0 ) {
-	    #warn "THERE!!!";
+            #warn "THERE!!!";
 
-	    # try to fetch next IP smart -- only all IP's are equal
-	    my $old_local_ip = delete $response->{local_ip};
-	    if ( not exists $self->{local_ips} ) {
-		%{ $self->{local_ips} } = 
-		    map { $_ => 0 } local_ips();
-	    }
+            # try to fetch next IP smart -- only all IP's are equal
+            my $old_local_ip = delete $response->{local_ip};
+            if ( not exists $self->{local_ips} ) {
+                %{ $self->{local_ips} } = 
+                    map { $_ => 0 } local_ips();
+            }
 
-	    my $i;
+            my $i;
 
-	    if ( defined $old_local_ip ) {
-		$i = ++$self->{local_ips}{ $old_local_ip };
-	    }
+            if ( defined $old_local_ip ) {
+                $i = ++$self->{local_ips}{ $old_local_ip };
+            }
 
-	    # warn "$i ", Dumper $self->{local_ips};
+            # warn "$i ", Dumper $self->{local_ips};
 
-	    $response->{local_ip} = 
-		first { $i > $self->{local_ips}{ $_ } } local_ips();
-		
-	    $response->{local_ip} ||= next_local_ip();
+            $response->{local_ip} = 
+                first { $i > $self->{local_ips}{ $_ } } local_ips();
+                
+            $response->{local_ip} ||= next_local_ip();
 
-	    delete $response->{error};
-	    delete $response->{whois};
+            delete $response->{error};
+            delete $response->{whois};
 
-	    $poe_kernel->yield('_start');
-	    return;
+            $poe_kernel->yield('_start');
+            return;
         }
     }
     
@@ -487,31 +487,31 @@ sub get_recursion {
     my $new_query  = $query;
     
     foreach (split "\n", $whois) {
-    	$registrar ||= /Registrar/ || /Registered through/;
+            $registrar ||= /Registrar/ || /Registered through/;
             
-    	if ($registrar && /Whois Server:\s*([A-Za-z0-9\-_\.]+)/) {
+            if ($registrar && /Whois Server:\s*([A-Za-z0-9\-_\.]+)/) {
             $new_server = lc $1;
             #last;
-    	} elsif ($whois =~ /To single out one record, look it up with \"xxx\",/s) {
+            } elsif ($whois =~ /To single out one record, look it up with \"xxx\",/s) {
             $new_server = $server;
             $new_query  = "=$query";
             last;
-	} elsif (/ReferralServer: whois:\/\/([-.\w]+)/) {
-	    $new_server = $1;
-	    last;
-	} elsif (/Contact information can be found in the (\S+)\s+database/) {
-	    $new_server = $Net::Whois::Raw::Data::ip_whois_servers{ $1 };
+        } elsif (/ReferralServer: whois:\/\/([-.\w]+)/) {
+            $new_server = $1;
+            last;
+        } elsif (/Contact information can be found in the (\S+)\s+database/) {
+            $new_server = $Net::Whois::Raw::Data::ip_whois_servers{ $1 };
             #last;
-    	} elsif ((/OrgID:\s+(\w+)/ || /descr:\s+(\w+)/) && Net::Whois::Raw::Common::is_ipaddr($query)) {
-	    my $value = $1;	
-	    if($value =~ /^(?:RIPE|APNIC|KRNIC|LACNIC)$/) {
-		$new_server = $Net::Whois::Raw::Data::ip_whois_servers{$value};
-		last;
-	    }
-    	} elsif (/^\s+Maintainer:\s+RIPE\b/ && Net::Whois::Raw::Common::is_ipaddr($query)) {
+            } elsif ((/OrgID:\s+(\w+)/ || /descr:\s+(\w+)/) && Net::Whois::Raw::Common::is_ipaddr($query)) {
+            my $value = $1;	
+            if($value =~ /^(?:RIPE|APNIC|KRNIC|LACNIC)$/) {
+                $new_server = $Net::Whois::Raw::Data::ip_whois_servers{$value};
+                last;
+            }
+            } elsif (/^\s+Maintainer:\s+RIPE\b/ && Net::Whois::Raw::Common::is_ipaddr($query)) {
             $new_server = $Net::Whois::Raw::Data::servers{RIPE};
             last;
-	}
+        }
     }
     
     if ($new_server) {

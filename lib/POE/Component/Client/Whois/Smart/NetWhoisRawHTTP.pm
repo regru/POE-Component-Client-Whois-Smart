@@ -38,8 +38,8 @@ sub get_server {
     my $whois_server = Net::Whois::Raw::Common::get_server($query, $use_cnames);
 
     unless ( $whois_server ) {
-	warn "Could not determine whois server from query string, defaulting to internic \n";
-	$whois_server = 'whois.internic.net';
+        warn "Could not determine whois server from query string, defaulting to internic \n";
+        $whois_server = 'whois.internic.net';
     }
 
     return $whois_server;
@@ -47,8 +47,8 @@ sub get_server {
 
 sub initialize {
     POE::Component::Client::HTTP->spawn(
-	Alias => 'ua',
-	Timeout => 10,
+        Alias => 'ua',
+        Timeout => 10,
     );
     return 1;
 }
@@ -66,14 +66,14 @@ sub query {
     my @my_queries;
 
     foreach (0..$#$query_list) {
-	my $query = shift @$query_list;
+        my $query = shift @$query_list;
 
-	if ( $query !~ m/:/ && get_server( $query ) eq 'www_whois' ) {
-	    push @my_queries, $query;
-	    next;
-	}
+        if ( $query !~ m/:/ && get_server( $query ) eq 'www_whois' ) {
+            push @my_queries, $query;
+            next;
+        }
 
-	push @$query_list, $query;
+        push @$query_list, $query;
     }
 
     $class->get_whois_for_all( \@my_queries, $heap, $args_ref );
@@ -84,8 +84,8 @@ sub get_whois {
     my %args = @_;
 
     if ( $args{query} eq 'pleasetesttimeoutonthisdomainrequest.com' ) {
-	sleep 10;
-	return;
+        sleep 10;
+        return;
     }
 
     unless ( $args{host} ) {
@@ -98,9 +98,9 @@ sub get_whois {
     }
 
     my $self = bless {
-	result  => delete( $args{result} ),
-	params	=> delete( $args{params} ),
-	request => \%args,
+        result  => delete( $args{result} ),
+        params	=> delete( $args{params} ),
+        request => \%args,
     }, $package;
 
     $self->{session_id} = POE::Session->create(
@@ -120,7 +120,7 @@ sub _start {
     my ($kernel, $self) = @_[KERNEL, OBJECT];
 
     my ($name, $tld) = Net::Whois::Raw::Common::split_domain(
-	$self->{request}->{query}
+        $self->{request}->{query}
     );
 
     my ($http_query_data) = Net::Whois::Raw::Common::get_http_query_url($self->{request}->{query});
@@ -137,13 +137,13 @@ sub _start {
     my $req = new HTTP::Request $method, $url, $header;
 
     if ($method eq 'POST') {
-	require URI::URL;
-	import URI::URL;
+        require URI::URL;
+        import URI::URL;
 
-	my $curl = url("http:");
-	$req->content_type('application/x-www-form-urlencoded');
-	$curl->query_form(%$form);
-	$req->content($curl->equery);
+        my $curl = url("http:");
+        $req->content_type('application/x-www-form-urlencoded');
+        $curl->query_form(%$form);
+        $req->content($curl->equery);
     }
 
     $kernel->alias_resolve('ua')->[OBJECT]{factory}->timeout( $self->{request}{timeout} );
@@ -156,7 +156,7 @@ sub _start {
 # cach result from http whois-server
 sub _http_down {
     my ($kernel, $heap, $self, $request_packet, $response_packet)
-	= @_[KERNEL, HEAP, OBJECT, ARG0, ARG1];
+        = @_[KERNEL, HEAP, OBJECT, ARG0, ARG1];
 
     # response obj
     my $response = $response_packet->[0];    
@@ -165,7 +165,7 @@ sub _http_down {
 #    warn "" . $content;    
 
     $self->{request}->{whois}
-	= Net::Whois::Raw::Common::parse_www_content($content, $self->{request}->{tld});
+        = Net::Whois::Raw::Common::parse_www_content($content, $self->{request}->{tld});
     
     my $request = $self->{request};
 

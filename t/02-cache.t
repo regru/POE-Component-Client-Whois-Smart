@@ -39,16 +39,16 @@ my $params = {
 my $heap = {
     params => $params,
     result => {
-	'testme_domain.com' => [
-	    {
-		server => 'localhost',
-		whois => 'Here is sample WHOIS text',
-	    },
-	    {
-		server => 'localhost2',
-		whois => 'Here is another sample WHOIS text',
-	    },
-	],
+        'testme_domain.com' => [
+            {
+                server => 'localhost',
+                whois => 'Here is sample WHOIS text',
+            },
+            {
+                server => 'localhost2',
+                whois => 'Here is another sample WHOIS text',
+            },
+        ],
     },
 };
 

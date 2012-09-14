@@ -29,7 +29,7 @@ our %servers_ban = ();
 # HIJACK POE::Filter::HTTPChunk
 {
     package # hide from PAUSE
-	POE::Filter::HTTPChunk;
+        POE::Filter::HTTPChunk;
 
     use POE::Filter::HTTPChunk;
 
@@ -75,28 +75,28 @@ sub whois {
 
     if ( not $plugins_initialized ) {
 
-	foreach my $plugin ($class->plugins) {
-	    #warn $plugin;
-	    eval {
-		$plugin->require
-		    or die "Cannot require plugin $plugin: $@";
+        foreach my $plugin ($class->plugins) {
+            #warn $plugin;
+            eval {
+                $plugin->require
+                    or die "Cannot require plugin $plugin: $@";
 
-		my $init = $plugin->can('initialize');
+                my $init = $plugin->can('initialize');
 
-		$init && $init->($poe_kernel, \%args)
-		    or die "Cannot initialize plugin $plugin: $@";
-		
-		if ( $DEBUG ) {
-		    no strict 'refs';
-		    no warnings 'redefine';
-		    *{$plugin.'::DEBUG'} = sub { $DEBUG };
-		}
-	    };
+                $init && $init->($poe_kernel, \%args)
+                    or die "Cannot initialize plugin $plugin: $@";
+                
+                if ( $DEBUG ) {
+                    no strict 'refs';
+                    no warnings 'redefine';
+                    *{$plugin.'::DEBUG'} = sub { $DEBUG };
+                }
+            };
 
-	    warn $@ if $@;
-	}
+            warn $@ if $@;
+        }
 
-	$plugins_initialized = 1;
+        $plugins_initialized = 1;
     }
 
     $args{session} = $args{session} || $poe_kernel->get_active_session();        
@@ -123,16 +123,16 @@ sub _start_manager {
     $params{parent_session_id} = delete($args{session})->ID();
 
     foreach my $plugin ( CLASS->plugins ) {
-	my %plugin_params = 
-	    $plugin->can('plugin_params') ? $plugin->plugin_params() : ();
-	
-	foreach (keys %plugin_params) {
+        my %plugin_params = 
+            $plugin->can('plugin_params') ? $plugin->plugin_params() : ();
+        
+        foreach (keys %plugin_params) {
             if (not exists $params{$_}) {
                 $params{$_} = exists $args{$_}  ? 
                               delete($args{$_}) : $plugin_params{$_};
             }
-	    defined $params{$_} or delete $params{$_};
-	}
+            defined $params{$_} or delete $params{$_};
+        }
     }
 
     $params{event}  = delete $args{event};
@@ -148,24 +148,24 @@ sub _start_manager {
     $heap->{result} = {};
     
     if ( $args{local_ips} && "@{ $args{local_ips} }" ne "@local_ips" ) {
-	@local_ips = @{$args{local_ips}} if $args{local_ips};
-	$local_ip_index = 0;
+        @local_ips = @{$args{local_ips}} if $args{local_ips};
+        $local_ip_index = 0;
     }
     
     delete $args{local_ips};
 
     $args{query}
-	or return CLASS->check_if_done(@_[KERNEL, HEAP]);
+        or return CLASS->check_if_done(@_[KERNEL, HEAP]);
 
     my (@query_list) = @{$args{query}};
     delete $args{query};
     
     my $iteration = 0;
     while ( @query_list && $iteration++ < 10 ) {
-	CLASS->call_plugins(
-	    'query', \@query_list,
-	    $heap, \%args
-	);
+        CLASS->call_plugins(
+            'query', \@query_list,
+            $heap, \%args
+        );
     }
 
     # it can be already finished for that time
@@ -180,25 +180,25 @@ sub check_if_done {
     unless ($heap->{tasks}) {     
         my @result;
 
-	CLASS->call_plugins( '_on_done', $heap );
+        CLASS->call_plugins( '_on_done', $heap );
 
-	foreach my $query (keys %{$heap->{result}}) {            
-	    my $num = $heap->{params}->{referral} == 0 ? 0 : -1;
+        foreach my $query (keys %{$heap->{result}}) {            
+            my $num = $heap->{params}->{referral} == 0 ? 0 : -1;
 
-	    my $result = $heap->{result}{ $query }->[ $num ];
+            my $result = $heap->{result}{ $query }->[ $num ];
 
-	    my %res = (
-		query  => $query,
-		whois  => $result->{whois},
-		server => $result->{server},
-		error  => $result->{error},
-	    );
+            my %res = (
+                query  => $query,
+                whois  => $result->{whois},
+                server => $result->{server},
+                error  => $result->{error},
+            );
 
-	    $res{subqueries} = $heap->{result}->{$query}
-		if $heap->{params}->{referral} == 2;
-	    
-	    push @result, \%res;
-	}
+            $res{subqueries} = $heap->{result}->{$query}
+                if $heap->{params}->{referral} == 2;
+            
+            push @result, \%res;
+        }
 
         $kernel->post( $heap->{params}->{parent_session_id},
             $heap->{params}->{event}, \@result )

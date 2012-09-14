@@ -63,7 +63,7 @@ POE::Session->create(
                         _response_not_reg
                         _response_ip
                         _response_registrar
-			_response_domains_incorrect
+                        _response_domains_incorrect
                     )
         ],
     ],
@@ -77,22 +77,22 @@ sub _start {
     POE::Component::Client::Whois::Smart->whois(
         query => \@domains,
         event => '_response',
-	referral => 2,
-	cache_dir => '/tmp/whois-gateway-d'
+        referral => 2,
+        cache_dir => '/tmp/whois-gateway-d'
     );
 
     POE::Component::Client::Whois::Smart->whois(
         query => [ qw/moskva.com/ ],
         event => '_response_no_referral',
-	referral => 0,
-	cache_dir => '/tmp/whois-gateway'
+        referral => 0,
+        cache_dir => '/tmp/whois-gateway'
     );
 
     POE::Component::Client::Whois::Smart->whois(
         query => [ qw/moskva.com/ ],
         event => '_response_referral',
         referral => 1,
-	cache_dir => '/tmp/whois-gateway'
+        cache_dir => '/tmp/whois-gateway'
     );
 
     POE::Component::Client::Whois::Smart->whois(
@@ -119,14 +119,14 @@ sub _start {
     POE::Component::Client::Whois::Smart->whois(
         query  => \@domains_directi,
         event  => '_response_directi',
-	directi_params => {
-	    service_username => 'boldin.pavel@gmail.com',
-	    service_password => 'dazachem',
-	    service_langpref => 'en',
-	    service_role     => 'reseller',
-	    service_parentid => '999999998',
-	    url		     => 'https://api.onlyfordemo.net/anacreon/servlet/APIv3',
-	},
+        directi_params => {
+            service_username => 'boldin.pavel@gmail.com',
+            service_password => 'dazachem',
+            service_langpref => 'en',
+            service_role     => 'reseller',
+            service_parentid => '999999998',
+            url		     => 'https://api.onlyfordemo.net/anacreon/servlet/APIv3',
+        },
     );
 }
 
@@ -150,7 +150,7 @@ sub _response_no_referral {
 #warn Dumper $result;
 
     ok( $result && !$result->{error} && $result->{whois} =~ /Whois Server:/,
-	"non-referral whois for domain ".$result->{query}." from ".$result->{server} );
+        "non-referral whois for domain ".$result->{query}." from ".$result->{server} );
 }
 
 sub _response_referral {
@@ -161,9 +161,9 @@ sub _response_referral {
 #warn Dumper $result;
 
     ok(	    $result && !$result->{error} 
-	&&  $result->{whois} !~ /Whois Server:/i
-	&&  $result->{whois} =~ /Registrant Contact:/i,
-	"referral whois for domain ".$result->{query}." from ".$result->{server} );
+        &&  $result->{whois} !~ /Whois Server:/i
+        &&  $result->{whois} =~ /Registrant Contact:/i,
+        "referral whois for domain ".$result->{query}." from ".$result->{server} );
 }
 
 sub _response_directi {
@@ -173,35 +173,35 @@ sub _response_directi {
 
     foreach my $result ( @{$full_result} ) {
         my $query = $result->{query} if $result;
-	my $ok;
+        my $ok;
 
-	#use Data::Dumper;
-	#warn Dumper $result;
-	
-	if ( $result->{whois} ) {
-	  $ok  = $result->{whois} =~ m/^(available|regthrough)/;
-	}
-	else {
-	    $ok = $result->{query} =~ m/\.(?:ru|ns)$/ && $result->{error};
-	}
-	$ok ||= $result->{error} eq 'Not found' && $query =~ m/^test/;
+        #use Data::Dumper;
+        #warn Dumper $result;
+        
+        if ( $result->{whois} ) {
+          $ok  = $result->{whois} =~ m/^(available|regthrough)/;
+        }
+        else {
+            $ok = $result->{query} =~ m/\.(?:ru|ns)$/ && $result->{error};
+        }
+        $ok ||= $result->{error} eq 'Not found' && $query =~ m/^test/;
 
         ok( $ok, "whois for domain ".$result->{query}." from DirectI" );
     }                            
 
     if ( ! $directi_requests_send++ ) {
-	POE::Component::Client::Whois::Smart->whois(
-	    query  => \@domains_directi,
-	    event  => '_response_directi',
-	    directi_params => {
-		service_username => 'boldin.pavel@gmail.com',
-		service_password => 'dazachem',
-		service_langpref => 'en',
-		service_role     => 'reseller',
-		service_parentid => '999999998',
-		url		     => 'https://api.onlyfordemo.net/anacreon/servlet/APIv3',
-	    },
-	);
+        POE::Component::Client::Whois::Smart->whois(
+            query  => \@domains_directi,
+            event  => '_response_directi',
+            directi_params => {
+                service_username => 'boldin.pavel@gmail.com',
+                service_password => 'dazachem',
+                service_langpref => 'en',
+                service_role     => 'reseller',
+                service_parentid => '999999998',
+                url		     => 'https://api.onlyfordemo.net/anacreon/servlet/APIv3',
+            },
+        );
     }
 }
 
@@ -209,7 +209,7 @@ sub _response_registrar {
     my $full_result = $_[ARG0];
     foreach my $result ( @{$full_result} ) {
         my $query = $result->{query} if $result;
-	#print Dumper($result);
+        #print Dumper($result);
 
 
         ok( $result && !$result->{error} && $result->{whois} =~ /$query/i,
@@ -221,7 +221,7 @@ sub _response_not_reg {
     my $full_result = $_[ARG0];
     foreach my $result ( @{$full_result} ) {
 
-	#warn Dumper $result;
+        #warn Dumper $result;
 
         ok( $result && $result->{error},
             "whois for domain (not reged) ".$result->{query} );
@@ -242,7 +242,7 @@ sub _response_domains_incorrect {
 
     foreach my $result ( @{$full_result} ) {
         ok(	$result && $result->{error}
-	    &&	$result->{error} =~ m/^host resolve.*failed/,
+            &&	$result->{error} =~ m/^host resolve.*failed/,
             "host resolve for ".$result->{query}." from ".$result->{server} );
     }                            
 }

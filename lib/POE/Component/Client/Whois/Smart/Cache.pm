@@ -41,7 +41,7 @@ sub query {
     my @my_queries;
 
     @$query_list = grep 
-	{ ! _check_from_cache( $_, $heap, $args_ref ) } @$query_list;
+        { ! _check_from_cache( $_, $heap, $args_ref ) } @$query_list;
 
 }
 
@@ -49,9 +49,9 @@ sub _check_from_cache {
     my ($q, $heap, $args_ref) = @_;
 
     my $result = Net::Whois::Raw::Common::get_from_cache(
-	$q,
-	$heap->{params}->{ cache_dir  },
-	$heap->{params}->{ cache_time },
+        $q,
+        $heap->{params}->{ cache_dir  },
+        $heap->{params}->{ cache_time },
     );
 
     return unless $result;
@@ -62,20 +62,20 @@ sub _check_from_cache {
 
     my @res;
     foreach (@$result) {
-	$_->{server} = delete $_->{srv };
-	$_->{whois } = delete $_->{text};
+        $_->{server} = delete $_->{srv };
+        $_->{whois } = delete $_->{text};
 
-	my (undef, $error) = 
-	    Net::Whois::Raw::Common::process_whois(
-		$q,
-		$_->{server},
-		$_->{whois},
-		1
-	    );
+        my (undef, $error) = 
+            Net::Whois::Raw::Common::process_whois(
+                $q,
+                $_->{server},
+                $_->{whois},
+                1
+            );
 
-	$_->{error} = $error if $error;
+        $_->{error} = $error if $error;
 
-	push @res, $_;
+        push @res, $_;
     }
 
     $request->{cache     } = \@res;
@@ -97,21 +97,21 @@ sub _on_done {
 
     foreach my $query (keys %{$heap->{result}}) {            
 
-	my $num = $heap->{params}->{referral} == 0 ? 0 : -1;
+        my $num = $heap->{params}->{referral} == 0 ? 0 : -1;
 
-	my $result = $heap->{result}{ $query }->[ $num ];
+        my $result = $heap->{result}{ $query }->[ $num ];
 
-	#warn $query;
+        #warn $query;
 
-	if (    $heap->{params}->{cache_dir}
-	    &&  !$result->{from_cache}
-	    &&   ($result->{server} || '') ne 'directi') {
-	    Net::Whois::Raw::Common::write_to_cache(
-		$query,
-		$heap->{result}->{$query},
-		$heap->{params}->{cache_dir}
-	    );
-	}
+        if (    $heap->{params}->{cache_dir}
+            &&  !$result->{from_cache}
+            &&   ($result->{server} || '') ne 'directi') {
+            Net::Whois::Raw::Common::write_to_cache(
+                $query,
+                $heap->{result}->{$query},
+                $heap->{params}->{cache_dir}
+            );
+        }
     }
 }
 

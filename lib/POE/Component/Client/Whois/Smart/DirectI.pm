@@ -38,8 +38,8 @@ sub DEBUG { 1 }
 
 sub initialize {
     POE::Component::Client::HTTP->spawn(
-	Alias => 'ua_directi',
-	Timeout => 10, #$self->{request}->{timeout},
+        Alias => 'ua_directi',
+        Timeout => 10, #$self->{request}->{timeout},
     );
 
     return 1;
@@ -58,22 +58,22 @@ sub query {
     my @my_queries;
 
     @$query_list = grep { 
-	if ( s/^directi:// ) {
-	    push @my_queries, $_;
-	    ();
-	}
-	else {
-	    $_
-	}
+        if ( s/^directi:// ) {
+            push @my_queries, $_;
+            ();
+        }
+        else {
+            $_
+        }
     } @$query_list;
 
     #warn Dumper $args_ref;
 
     if ( @my_queries ) {
-	++$heap->{tasks};
-	$class->get_whois_directi(
-	    \@my_queries, $heap, $args_ref,
-	);
+        ++$heap->{tasks};
+        $class->get_whois_directi(
+            \@my_queries, $heap, $args_ref,
+        );
     }
 }
 
@@ -85,10 +85,10 @@ sub get_whois_directi {
 #    warn Dumper $args_ref;
 
     my $self = bless { 
-	domains		=> $domains,
-	request_domains => \@request_domains,
-	request	        => $args_ref,
-	result		=> $heap->{result},
+        domains		=> $domains,
+        request_domains => \@request_domains,
+        request	        => $args_ref,
+        result		=> $heap->{result},
     }, $package;
 
     $self->{session_id} = POE::Session->create(
@@ -101,8 +101,8 @@ sub get_whois_directi {
     )->ID();
 
     if ( DEBUG ) {
-	print time, " $self->{session_id}: Query ",
-	      join(', ', @$domains), " from DirectI\n"
+        print time, " $self->{session_id}: Query ",
+              join(', ', @$domains), " from DirectI\n"
     }
 
 
@@ -112,51 +112,51 @@ sub get_whois_directi {
 my $_directi_signature = {
     'namespace' => 'com.logicboxes.foundation.sfnb.order.DomOrder',
     'args' => [
-	{
-	    'type' => 'string',
-	    'key' => 'SERVICE_USERNAME',
-	    'hash_key' => 'service_username',
-	},
-	{
-	    'type' => 'string',
-	    'key' => 'SERVICE_PASSWORD',
-	    'hash_key' => 'service_password',
-	},
-	{
-	    'type' => 'string',
-	    'key' => 'SERVICE_ROLE',
-	    'hash_key' => 'service_role',
-	},
-	{
-	    'type' => 'string',
-	    'key' => 'SERVICE_LANGPREF',
-	    'hash_key' => 'service_langpref',
-	},
-	{
-	    'type' => 'int',
-	    'key' => 'SERVICE_PARENTID',
-	    'hash_key' => 'service_parentid',
-	},
-	{
-	    'elem_sig' => {
-		'type' => 'string',
-		'key' => 'item'
-	    },
-	    'type' => 'array',
-	    'key' => 'domainNames'
-	},
-	{
-	    'elem_sig' => {
-		'type' => 'string',
-		'key' => 'item'
-	    },
-	    'type' => 'array',
-	    'key' => 'tlds'
-	},
-	{
-	    'type' => 'boolean',
-	    'key' => 'suggestAlternative'
-	},
+        {
+            'type' => 'string',
+            'key' => 'SERVICE_USERNAME',
+            'hash_key' => 'service_username',
+        },
+        {
+            'type' => 'string',
+            'key' => 'SERVICE_PASSWORD',
+            'hash_key' => 'service_password',
+        },
+        {
+            'type' => 'string',
+            'key' => 'SERVICE_ROLE',
+            'hash_key' => 'service_role',
+        },
+        {
+            'type' => 'string',
+            'key' => 'SERVICE_LANGPREF',
+            'hash_key' => 'service_langpref',
+        },
+        {
+            'type' => 'int',
+            'key' => 'SERVICE_PARENTID',
+            'hash_key' => 'service_parentid',
+        },
+        {
+            'elem_sig' => {
+                'type' => 'string',
+                'key' => 'item'
+            },
+            'type' => 'array',
+            'key' => 'domainNames'
+        },
+        {
+            'elem_sig' => {
+                'type' => 'string',
+                'key' => 'item'
+            },
+            'type' => 'array',
+            'key' => 'tlds'
+        },
+        {
+            'type' => 'boolean',
+            'key' => 'suggestAlternative'
+        },
     ],
     'name' => 'checkAvailabilityMultiple'
 };
@@ -169,10 +169,10 @@ sub _get_directi_request_body {
     #warn Dumper $self->{request}{directi_params};
 
     my %directi_data = (
-	%{ $self->{request}{directi_params} },
-	domain_names => $names  ,
-	tlds	     => $tlds	,
-	suggest_alternative => 0,
+        %{ $self->{request}{directi_params} },
+        domain_names => $names  ,
+        tlds	     => $tlds	,
+        suggest_alternative => 0,
     );
 
     return $serializer->hash_to_soap( \%directi_data, $_directi_signature );
@@ -188,43 +188,43 @@ sub _start {
     my (%names, %tlds);
 
     foreach my $query ( @{ $self->{request_domains} } ) {
-	my ($name, $tld) = ($query =~ m/^([^\.]*)\.(.*)$/g);
+        my ($name, $tld) = ($query =~ m/^([^\.]*)\.(.*)$/g);
 
-	$names{$name}	= 1;
-	$tlds{$tld}	= 1;
+        $names{$name}	= 1;
+        $tlds{$tld}	= 1;
     }
 
     my @names	= keys %names;
     my @tlds	= keys %tlds;
 
     if ( ! @names ) {
-	my $request = delete $self->{request};
-	my $session = $request->{manager_id};
+        my $request = delete $self->{request};
+        my $session = $request->{manager_id};
 
-	my $response = {
-	    host    => 'soap_directi',
-	    domains => $self->{domains},
-	};
+        my $response = {
+            host    => 'soap_directi',
+            domains => $self->{domains},
+        };
 
-	$response->{data} = \%directi_cache;
-	$self->_response( $response );
-	
-	#warn Dumper $response, \%directi_cache;
+        $response->{data} = \%directi_cache;
+        $self->_response( $response );
+        
+        #warn Dumper $response, \%directi_cache;
 
-	$kernel->post( $session => $request->{event} => $response );
-	return;
+        $kernel->post( $session => $request->{event} => $response );
+        return;
     }
 
     my $request = eval { _get_directi_request_body( $self, \@names, \@tlds ) };
 
     if ( ! $request && $@ ) { 
-	my $request = delete $self->{request};
-	my $session = $request->{manager_id };
+        my $request = delete $self->{request};
+        my $session = $request->{manager_id };
 
 
-	$self->_response( { domains => $self->{domains}, error => $@ });
-	$kernel->post( $session => $request->{event} );
-	return;
+        $self->_response( { domains => $self->{domains}, error => $@ });
+        $kernel->post( $session => $request->{event} );
+        return;
     }
 
     #warn $request;
@@ -249,7 +249,7 @@ sub _start {
 
 sub _done {
     my ($kernel, $heap, $self, $request_packet, $response_packet)
-	= @_[KERNEL, HEAP, OBJECT, ARG0, ARG1];
+        = @_[KERNEL, HEAP, OBJECT, ARG0, ARG1];
 
 
     # response obj
@@ -265,9 +265,9 @@ sub _done {
     #warn $content;
 
     eval {
-	$parser->parse_xml_string( $content );
+        $parser->parse_xml_string( $content );
 
-	($data) = $parser->fetch_data_and_signature;
+        ($data) = $parser->fetch_data_and_signature;
     };
 
     #warn $content, $@;
@@ -275,13 +275,13 @@ sub _done {
     my $response;
 
     if ( $@ ) {
-	$response->{error} = $content =~ /Timeout/i ? 'Timeout' : $@;
+        $response->{error} = $content =~ /Timeout/i ? 'Timeout' : $@;
     }
     elsif ( exists $data->{faultstring} ) {
-	$response->{error} = $data->{faultstring};
+        $response->{error} = $data->{faultstring};
     }
     else {
-	$response->{data} = $data;
+        $response->{data} = $data;
     }
 
 
@@ -307,31 +307,31 @@ sub _response {
     my $data = $response->{data};
 
     foreach my $domain (keys %$data) {
-	$directi_cache{$domain} = $data->{$domain};
+        $directi_cache{$domain} = $data->{$domain};
     }
 
     foreach my $domain (@{ $response->{domains} }) {
-	my $status = $data->{ $domain };
+        my $status = $data->{ $domain };
 
 #	warn $domain, Dumper $data, $response;
 
-	$status ||= { error => $response->{error} };
+        $status ||= { error => $response->{error} };
 
-	push @{ $self->{result}{ 'directi:'.$domain } }, {
-	    query  => $domain,
-	    whois  => $status->{status},
-	    server => 'directi',
-	    error  => $status->{error},
-	}
+        push @{ $self->{result}{ 'directi:'.$domain } }, {
+            query  => $domain,
+            whois  => $status->{status},
+            server => 'directi',
+            error  => $status->{error},
+        }
     }
 
     if ( DEBUG ) {
         # awainting 5.10 with //=
         $self->{session_id} = defined $self->{session_id} 
                             ?         $self->{session_id} : 'cached';
-	print	time,
-		" $self->{session_id}: DONE: Query ",
-		join(', ',@{ $response->{domains} } ), " from DirectI\n"
+        print	time,
+                " $self->{session_id}: DONE: Query ",
+                join(', ',@{ $response->{domains} } ), " from DirectI\n"
     }
 
 

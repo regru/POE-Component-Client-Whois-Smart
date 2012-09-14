@@ -29,23 +29,23 @@ my $self = bless {}, $m;
 
 $self->_response(
     {
-	domains => [ 'reg.com' ],
-	data => {
-	    'reg.com' => {
-		status => 'regthroughothers',
-	    },
-	},
+        domains => [ 'reg.com' ],
+        data => {
+            'reg.com' => {
+                status => 'regthroughothers',
+            },
+        },
     },
 );
 
 is_deeply( $self->{result}, {
-	'directi:reg.com' => [
-	    {
-		query => 'reg.com',
-		whois => 'regthroughothers',
-		server => 'directi',
-		error => undef,
-	    }
-	],
+        'directi:reg.com' => [
+            {
+                query => 'reg.com',
+                whois => 'regthroughothers',
+                server => 'directi',
+                error => undef,
+            }
+        ],
     },
     '->_response call');
