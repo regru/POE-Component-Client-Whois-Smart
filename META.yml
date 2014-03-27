@@ -11,7 +11,7 @@ requires:
   HTTP::Request: 0
   Hash::MoreUtils: 0
   Module::Pluggable::Ordered: 0
-  Net::Whois::Raw: 1.56
+  Net::Whois::Raw: 2.60
   POE: 0
   POE::Component::Client::HTTP: 0
   POE::Component::SSLify: 0
@@ -27,7 +27,7 @@ configure_requires:
 provides:
   POE::Component::Client::Whois::Smart:
     file: lib/POE/Component/Client/Whois/Smart.pm
-    version: 0.186
+    version: 0.188
   POE::Component::Client::Whois::Smart::Cache:
     file: lib/POE/Component/Client/Whois/Smart/Cache.pm
   POE::Component::Client::Whois::Smart::DirectI:

@@ -9,7 +9,7 @@ WriteMakefile
                            'HTTP::Request' => 0,
                            'Hash::MoreUtils' => 0,
                            'Module::Pluggable::Ordered' => 0,
-                           'Net::Whois::Raw' => '1.56',
+                           'Net::Whois::Raw' => '2.60',
                            'POE' => 0,
                            'POE::Component::Client::HTTP' => 0,
                            'POE::Component::SSLify' => 0,
